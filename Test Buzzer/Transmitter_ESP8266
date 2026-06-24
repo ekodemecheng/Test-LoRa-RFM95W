@@ -1,31 +1,26 @@
 /*
 =================================================
  LoRa RFM95W Transmitter
- ESP32 Wemos D1 Mini
- Push Button -> Kirim Data LoRa
+ Wemos D1 Mini ESP8266
 =================================================
 */
 
 #include <SPI.h>
 #include <LoRa.h>
 
-// -------------------------
-// Pin LoRa RFM95W
-// -------------------------
-#define LORA_SCK   18
-#define LORA_MISO  19
-#define LORA_MOSI  23
-#define LORA_SS    5
-#define LORA_RST   14
-#define LORA_DIO0  26
+// LoRa Pin
+#define LORA_SS    15    // D8
+#define LORA_RST   2     // D4
+#define LORA_DIO0  5     // D1
 
 // Push Button
-#define BUTTON_PIN 4
+#define BUTTON_PIN 4     // D2
 
-// Frekuensi LoRa Indonesia
 #define BAND 923E6
 
-bool lastButtonState = HIGH;
+bool buttonState = HIGH;
+bool lastReading = HIGH;
+
 unsigned long lastDebounceTime = 0;
 const unsigned long debounceDelay = 50;
 
@@ -37,20 +32,19 @@ void setup()
 
   Serial.println();
   Serial.println("================================");
-  Serial.println(" LoRa RFM95W TRANSMITTER");
+  Serial.println(" LoRa TRANSMITTER");
   Serial.println("================================");
 
-  // SPI LoRa
-  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
+  // ESP8266 SPI Fixed Pin
+  SPI.begin();
 
-  // Set pin LoRa
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
 
   Serial.println("Initializing LoRa...");
 
   if (!LoRa.begin(BAND))
   {
-    Serial.println("LoRa initialization FAILED!");
+    Serial.println("LoRa FAILED");
     while (1);
   }
 
@@ -58,33 +52,36 @@ void setup()
   LoRa.enableCrc();
 
   Serial.println("LoRa Ready");
-  Serial.println("Press Button to Send");
 }
 
 void loop()
 {
   bool reading = digitalRead(BUTTON_PIN);
 
-  if (reading != lastButtonState)
+  if (reading != lastReading)
   {
     lastDebounceTime = millis();
   }
 
   if ((millis() - lastDebounceTime) > debounceDelay)
   {
-    // Tombol ditekan (LOW karena pullup)
-    if (reading == LOW && lastButtonState == HIGH)
+    if (reading != buttonState)
     {
-      sendMessage("BUTTON_PRESSED");
+      buttonState = reading;
+
+      if (buttonState == LOW)
+      {
+        sendMessage("BUTTON_PRESSED");
+      }
     }
   }
 
-  lastButtonState = reading;
+  lastReading = reading;
 }
 
 void sendMessage(String message)
 {
-  Serial.print("Sending: ");
+  Serial.print("Sending : ");
   Serial.println(message);
 
   LoRa.beginPacket();
