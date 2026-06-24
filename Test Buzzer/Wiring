@@ -1,0 +1,30 @@
+Wiring Transmitter
+| RFM95W      | Wemos D1 Mini ESP8266 |
+| ----------- | --------------------- |
+| VCC         | 3.3V                  |
+| GND         | GND                   |
+| SCK         | D5 (GPIO14)           |
+| MISO        | D6 (GPIO12)           |
+| MOSI        | D7 (GPIO13)           |
+| NSS         | D8 (GPIO15)           |
+| RST         | D4 (GPIO2)            |
+| DIO0        | D1 (GPIO5)            |
+| Push Button | D2 (GPIO4) ke GND     |
+
+Wiring Receiver
+
+| Perangkat | Pin Wemos  |
+| --------- | ---------- |
+| Relay IN  | D2 (GPIO4) |
+| Buzzer +  | D3 (GPIO0) |
+| Buzzer -  | GND        |
+
+| RFM95W | Wemos |
+| ------ | ----- |
+| SCK    | D5    |
+| MISO   | D6    |
+| MOSI   | D7    |
+| NSS    | D8    |
+| RST    | D4    |
+| DIO0   | D1    |
+
