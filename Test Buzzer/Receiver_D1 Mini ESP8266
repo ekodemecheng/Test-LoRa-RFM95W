@@ -1,0 +1,77 @@
+/*
+=================================================
+ LoRa RFM95W Receiver
+ Wemos D1 Mini ESP8266
+=================================================
+*/
+
+#include <SPI.h>
+#include <LoRa.h>
+
+#define LORA_SS    15
+#define LORA_RST   2
+#define LORA_DIO0  5
+
+#define RELAY_PIN  4     // D2
+#define BUZZER_PIN 0     // D3
+
+#define BAND 923E6
+
+void setup()
+{
+  Serial.begin(115200);
+
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  SPI.begin();
+
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+
+  Serial.println("Initializing LoRa...");
+
+  if (!LoRa.begin(BAND))
+  {
+    Serial.println("LoRa FAILED");
+    while (1);
+  }
+
+  LoRa.enableCrc();
+
+  Serial.println("Receiver Ready");
+}
+
+void loop()
+{
+  int packetSize = LoRa.parsePacket();
+
+  if (packetSize)
+  {
+    String msg = "";
+
+    while (LoRa.available())
+    {
+      msg += (char)LoRa.read();
+    }
+
+    Serial.print("Received : ");
+    Serial.println(msg);
+
+    Serial.print("RSSI : ");
+    Serial.println(LoRa.packetRssi());
+
+    if (msg == "BUTTON_PRESSED")
+    {
+      digitalWrite(RELAY_PIN, HIGH);
+      digitalWrite(BUZZER_PIN, HIGH);
+
+      delay(1000);
+
+      digitalWrite(RELAY_PIN, LOW);
+      digitalWrite(BUZZER_PIN, LOW);
+    }
+  }
+}
